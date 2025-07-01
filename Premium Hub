@@ -36,6 +36,41 @@ local Section = Tab:CreateSection("Menu")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local danceAnim = Instance.new("Animation")
+danceAnim.AnimationId = "rbxassetid://3189773368" -- ID animasi dance Roblox default
+
+local danceTrack = nil
+
+local Toggle = Tab:CreateToggle({
+    Name = "Dance",
+    CurrentValue = false,
+    Flag = "ToggleDance",
+    Callback = function(Value)
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid then
+            if Value then
+                -- Mainkan animasi dance
+                danceTrack = humanoid:LoadAnimation(danceAnim)
+                danceTrack.Looped = true
+                danceTrack:Play()
+            else
+                -- Hentikan animasi dance
+                if danceTrack then
+                    danceTrack:Stop()
+                    danceTrack:Destroy()
+                    danceTrack = nil
+                end
+            end
+        end
+    end,
+})
+
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local Toggle = Tab:CreateToggle({
     Name = "Invisible",
     CurrentValue = false,
