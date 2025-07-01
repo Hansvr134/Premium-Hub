@@ -33,6 +33,134 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local espEnabled = false
+local espFolder = Instance.new("Folder", game.CoreGui)
+espFolder.Name = "ESP_Objects"
+
+local function createESP(player)
+    if player == LocalPlayer then return end
+    if player.Character and player.Character:FindFirstChild("Head") then
+        local head = player.Character.Head
+
+        -- Buat BillboardGui di atas kepala
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "ESP"
+        billboard.Adornee = head
+        billboard.Size = UDim2.new(0, 100, 0, 20)
+        billboard.AlwaysOnTop = true
+        billboard.StudsOffset = Vector3.new(0, 2, 0)
+        billboard.Parent = espFolder
+
+        -- Tambahkan TextLabel
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 1, 0)
+        label.BackgroundTransparency = 1
+        label.Text = player.Name
+        label.TextColor3 = Color3.fromRGB(255, 0, 0)
+        label.TextStrokeTransparency = 0
+        label.TextScaled = true
+        label.Font = Enum.Font.SourceSansBold
+        label.Parent = billboard
+    end
+end
+
+local function removeAllESP()
+    espFolder:ClearAllChildren()
+end
+
+-- Toggle GUI ESP
+local Toggle = Tab:CreateToggle({
+    Name = "ESP Player",
+    CurrentValue = false,
+    Flag = "ToggleESP",
+    Callback = function(Value)
+        espEnabled = Value
+
+        if espEnabled then
+            -- Tambahkan ESP ke semua player yang ada
+            for _, player in pairs(Players:GetPlayers()) do
+                createESP(player)
+            end
+
+            -- Tambahkan ESP saat player baru join
+            Players.PlayerAdded:Connect(function(player)
+                player.CharacterAdded:Connect(function()
+                    wait(1)
+                    if espEnabled then
+                        createESP(player)
+                    end
+                end)
+            end)
+
+            -- Update jika karakter respawn
+            for _, player in pairs(Players:GetPlayers()) do
+                player.CharacterAdded:Connect(function()
+                    wait(1)
+                    if espEnabled then
+                        createESP(player)
+                    end
+                end)
+            end
+        else
+            -- Hapus semua ESP
+            removeAllESP()
+        end
+    end,
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Button = Tab:CreateButton({
+   Name = "Respawn",
+   Callback = function()
+      local character = LocalPlayer.Character
+      if character then
+         -- Bunuh karakter (akan respawn otomatis)
+         character:BreakJoints()
+      end
+   end,
+})
+
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local placeId = game.PlaceId
+
+local function hopServer()
+    local success, result = pcall(function()
+        local servers = HttpService:JSONDecode(game:HttpGetAsync(
+            ("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId)
+        ))
+
+        for _, server in pairs(servers.data) do
+            if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                TeleportService:TeleportToPlaceInstance(placeId, server.id, LocalPlayer)
+                break
+            end
+        end
+    end)
+
+    if not success then
+        warn("Gagal hop server:", result)
+    end
+end
+
+-- Tombol Hop Server
+local Button = Tab:CreateButton({
+   Name = "Hop Server",
+   Callback = function()
+      hopServer()
+   end,
+})
+
+
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -84,7 +212,7 @@ local currentSpeed = 16 -- default awal
 
 -- 🔘 Toggle ON/OFF
 local Toggle = Tab:CreateToggle({
-    Name = "WalkSpeed Aktif",
+    Name = "WalkSpeed On",
     CurrentValue = false,
     Flag = "ToggleWalkSpeed",
     Callback = function(enabled)
@@ -123,20 +251,53 @@ local Slider = Tab:CreateSlider({
     end,
 })
 
-local Slider = Tab:CreateSlider({
-    Name = "JumpPower",
-    Range = {50, 300},         
-    Increment = 10,
-    Suffix = "JumpPower",
-    CurrentValue = 50,
-    Flag = "Slider1",  
-    Callback = function(v)
-        local player = game.Players.LocalPlayer
-        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-            player.Character.Humanoid.JumpPower = v
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local jumpPowerEnabled = false
+local currentJumpPower = 50 -- nilai awal
+
+-- 🔘 Toggle ON/OFF
+local Toggle = Tab:CreateToggle({
+    Name = "JumpPower On",
+    CurrentValue = false,
+    Flag = "ToggleJumpPower",
+    Callback = function(enabled)
+        jumpPowerEnabled = enabled
+
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if jumpPowerEnabled then
+                humanoid.JumpPower = currentJumpPower
+            else
+                humanoid.JumpPower = 50 -- default Roblox
+            end
         end
     end,
 })
+
+-- 📏 Slider
+local Slider = Tab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 300},
+    Increment = 10,
+    Suffix = "JumpPower",
+    CurrentValue = 50,
+    Flag = "SliderJumpPower",
+    Callback = function(value)
+        currentJumpPower = value
+
+        if jumpPowerEnabled then
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = currentJumpPower
+            end
+        end
+    end,
+})
+
 
 
 local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
