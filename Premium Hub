@@ -33,6 +33,78 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
 
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local flying = false
+local velocity = nil
+local direction = Vector3.zero
+local flySpeed = 50
+
+local Toggle = Tab:CreateToggle({
+    Name = "Fly",
+    CurrentValue = false,
+    Flag = "ToggleFly",
+    Callback = function(v)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+
+        if v then
+            -- Aktifkan fly
+            flying = true
+            velocity = Instance.new("BodyVelocity")
+            velocity.Name = "FlyVelocity"
+            velocity.MaxForce = Vector3.new(1, 1, 1) * 1000000
+            velocity.Velocity = Vector3.zero
+            velocity.Parent = hrp
+
+            -- Update arah setiap frame
+            RunService:BindToRenderStep("FlyControl", Enum.RenderPriority.Input.Value, function()
+                if flying and velocity then
+                    velocity.Velocity = direction * flySpeed
+                end
+            end)
+        else
+            -- Nonaktifkan fly
+            flying = false
+            RunService:UnbindFromRenderStep("FlyControl")
+            if velocity then
+                velocity:Destroy()
+                velocity = nil
+            end
+        end
+    end,
+})
+
+-- Update arah berdasarkan tombol
+UIS.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if not flying then return end
+
+    if input.KeyCode == Enum.KeyCode.W then
+        direction = direction + workspace.CurrentCamera.CFrame.LookVector
+    elseif input.KeyCode == Enum.KeyCode.S then
+        direction = direction - workspace.CurrentCamera.CFrame.LookVector
+    elseif input.KeyCode == Enum.KeyCode.A then
+        direction = direction - workspace.CurrentCamera.CFrame.RightVector
+    elseif input.KeyCode == Enum.KeyCode.D then
+        direction = direction + workspace.CurrentCamera.CFrame.RightVector
+    elseif input.KeyCode == Enum.KeyCode.Space then
+        direction = direction + Vector3.new(0, 1, 0)
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then
+        direction = direction - Vector3.new(0, 1, 0)
+    end
+end)
+
+UIS.InputEnded:Connect(function(input, gp)
+    if gp then return end
+    if not flying then return end
+
+    -- Reset arah jika tombol dilepas
+    direction = Vector3.zero
+end)
+
 local Slider = Tab:CreateSlider({
     Name = "WalkSpeed",
     Range = {16, 300},
@@ -47,6 +119,22 @@ local Slider = Tab:CreateSlider({
         end
     end,
 })
+
+local Slider = Tab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 300},         
+    Increment = 10,
+    Suffix = "JumpPower",
+    CurrentValue = 50,
+    Flag = "Slider1",  
+    Callback = function(v)
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = v
+        end
+    end,
+})
+
 
 local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
 local Section = Tab:CreateSection("Menu")
