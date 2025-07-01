@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
       Invite = "ECxQFc97F5",
       RememberJoins = true
    },
-   KeySystem = true,
+   KeySystem = False,
    KeySettings = {
       Title = "Han Key",
       Subtitle = "Key system",
@@ -55,57 +55,8 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local spamEnabled = false
-local spamMessage = "Halo semua!"
-local spamDelay = 1
-local spamThread = nil
-
--- Textbox: Isi pesan
-local Textbox = Tab:CreateInput({
-    Name = "Pesan Spam",
-    PlaceholderText = "Tulis pesan spam...",
-    RemoveTextAfterFocusLost = false,
-    Callback = function(Text)
-        spamMessage = Text
-    end,
-})
-
--- Slider: Delay antar pesan
-local Slider = Tab:CreateSlider({
-    Name = "Delay Spam",
-    Range = {0.1, 5},
-    Increment = 0.1,
-    Suffix = "detik",
-    CurrentValue = 1,
-    Flag = "SpamDelay",
-    Callback = function(Value)
-        spamDelay = Value
-    end,
-})
-
--- Toggle: Aktifkan/Matiin Spam
-local Toggle = Tab:CreateToggle({
-    Name = "Spam Chat (Semua Bisa Lihat)",
-    CurrentValue = false,
-    Flag = "SpamChatToggle",
-    Callback = function(Value)
-        spamEnabled = Value
-
-        if spamEnabled then
-            spamThread = task.spawn(function()
-                while spamEnabled do
-                    local chatRemote = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest")
-                    if chatRemote then
-                        chatRemote:FireServer(spamMessage, "All")
-                    end
-                    task.wait(spamDelay)
-                end
-            end)
-        else
-            spamEnabled = false
-        end
-    end,
-})
+local Tab = Window:CreateTab("[⚙️]Setting", nil)
+local Section = Tab:CreateSection("Menu")
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
