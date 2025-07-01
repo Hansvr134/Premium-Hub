@@ -170,7 +170,7 @@ end
 
 -- Toggle Aimbot
 local Toggle = Tab:CreateToggle({
-   Name = "AimbotLock + ESP + Meter",
+   Name = "AimbotLock",
    CurrentValue = false,
    Flag = "ToggleAimbot",
    Callback = function(v)
@@ -453,7 +453,7 @@ local Toggle = Tab:CreateToggle({
 -- 📏 Slider
 local Slider = Tab:CreateSlider({
     Name = "JumpPower",
-    Range = {50, 300},
+    Range = {16, 300},
     Increment = 10,
     Suffix = "JumpPower",
     CurrentValue = 50,
