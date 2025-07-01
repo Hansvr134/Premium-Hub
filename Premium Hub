@@ -38,10 +38,11 @@ local RunService = game:GetService("RunService")
 
 local flying = false
 local flySpeed = 50
-local bodyGyro, bodyVelocity
+local bodyGyro
+local bodyVelocity
 
 local Toggle = Tab:CreateToggle({
-    Name = "Fly",
+    Name = "Fly + Jalan",
     CurrentValue = false,
     Flag = "ToggleFlyMove",
     Callback = function(enabled)
@@ -52,50 +53,67 @@ local Toggle = Tab:CreateToggle({
         if enabled then
             flying = true
 
+            -- Buat BodyGyro untuk rotasi arah
             bodyGyro = Instance.new("BodyGyro")
             bodyGyro.P = 9e4
             bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
             bodyGyro.CFrame = hrp.CFrame
             bodyGyro.Parent = hrp
 
+            -- Buat BodyVelocity untuk gerakan bebas
             bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            bodyVelocity.Velocity = Vector3.zero
             bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
             bodyVelocity.Parent = hrp
 
-            RunService:BindToRenderStep("FlyWalk", Enum.RenderPriority.Input.Value, function()
-                if flying then
-                    local cam = workspace.CurrentCamera
-                    local moveVec = Vector3.new()
+            -- Loop gerakan Fly
+            RunService:BindToRenderStep("FlyMovement", Enum.RenderPriority.Input.Value, function()
+                if not flying then return end
 
-                    if UIS:IsKeyDown(Enum.KeyCode.W) then
-                        moveVec += cam.CFrame.LookVector
-                    end
-                    if UIS:IsKeyDown(Enum.KeyCode.S) then
-                        moveVec -= cam.CFrame.LookVector
-                    end
-                    if UIS:IsKeyDown(Enum.KeyCode.A) then
-                        moveVec -= cam.CFrame.RightVector
-                    end
-                    if UIS:IsKeyDown(Enum.KeyCode.D) then
-                        moveVec += cam.CFrame.RightVector
-                    end
-                    if UIS:IsKeyDown(Enum.KeyCode.Space) then
-                        moveVec += Vector3.new(0, 1, 0)
-                    end
-                    if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
-                        moveVec -= Vector3.new(0, 1, 0)
-                    end
+                local cam = workspace.CurrentCamera
+                local moveVec = Vector3.zero
 
-                    bodyVelocity.Velocity = moveVec.Unit * flySpeed
-                    bodyGyro.CFrame = cam.CFrame
+                if UIS:IsKeyDown(Enum.KeyCode.W) then
+                    moveVec += cam.CFrame.LookVector
                 end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then
+                    moveVec -= cam.CFrame.LookVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then
+                    moveVec -= cam.CFrame.RightVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then
+                    moveVec += cam.CFrame.RightVector
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then
+                    moveVec += Vector3.new(0, 1, 0)
+                end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftShift) then
+                    moveVec -= Vector3.new(0, 1, 0)
+                end
+
+                -- Cegah error saat tidak gerak
+                if moveVec.Magnitude > 0 then
+                    bodyVelocity.Velocity = moveVec.Unit * flySpeed
+                else
+                    bodyVelocity.Velocity = Vector3.zero
+                end
+
+                bodyGyro.CFrame = cam.CFrame
             end)
         else
             flying = false
-            RunService:UnbindFromRenderStep("FlyWalk")
-            if bodyGyro then bodyGyro:Destroy() end
-            if bodyVelocity then bodyVelocity:Destroy() end
+            RunService:UnbindFromRenderStep("FlyMovement")
+
+            if bodyGyro then
+                bodyGyro:Destroy()
+                bodyGyro = nil
+            end
+
+            if bodyVelocity then
+                bodyVelocity:Destroy()
+                bodyVelocity = nil
+            end
         end
     end,
 })
