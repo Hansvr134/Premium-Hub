@@ -26,12 +26,32 @@ local Window = Rayfield:CreateWindow({
       FileName = "Key",
       SaveKey = true,
       GrabKeyFromSite = false,
-      Key = {"FFMN_jfgue786eh767et75egyf5"}
+      Key = {"Premium_jfgue786eh767et75egyf5"}
    }
 })
 
 local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Toggle = Tab:CreateToggle({
+    Name = "Invisible",
+    CurrentValue = false,
+    Flag = "ToggleInvisible",
+    Callback = function(Value)
+        local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        
+        for _, part in pairs(character:GetDescendants()) do
+            if part:IsA("BasePart") or part:IsA("Decal") then
+                part.Transparency = Value and 1 or 0
+            elseif part:IsA("ParticleEmitter") or part:IsA("Trail") then
+                part.Enabled = not Value
+            end
+        end
+    end,
+})
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -125,41 +145,6 @@ local Button = Tab:CreateButton({
       end
    end,
 })
-
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local placeId = game.PlaceId
-
-local function hopServer()
-    local success, result = pcall(function()
-        local servers = HttpService:JSONDecode(game:HttpGetAsync(
-            ("https://games.roblox.com/v1/games/%d/servers/Public?sortOrder=Asc&limit=100"):format(placeId)
-        ))
-
-        for _, server in pairs(servers.data) do
-            if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                TeleportService:TeleportToPlaceInstance(placeId, server.id, LocalPlayer)
-                break
-            end
-        end
-    end)
-
-    if not success then
-        warn("Gagal hop server:", result)
-    end
-end
-
--- Tombol Hop Server
-local Button = Tab:CreateButton({
-   Name = "Hop Server",
-   Callback = function()
-      hopServer()
-   end,
-})
-
 
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
