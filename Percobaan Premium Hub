@@ -30,6 +30,9 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+local Tab = Window:CreateTab("[⚙️]Setting", nil)
+local Section = Tab:CreateSection("Menu")
+
 local UICorner = Instance.new("UICorner", ImageLabel)
 UICorner.CornerRadius = UDim.new(0, 50) -- bikin lingkaran
 
@@ -62,8 +65,6 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("[⚙️]Setting", nil)
-local Section = Tab:CreateSection("Menu")
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
