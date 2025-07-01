@@ -30,7 +30,10 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local Tab = Window:CreateTab("Main Menu", 4483362458)
+local Tab = Window:CreateTab("Update", 4483362458)
+Taks ("halo")
+
+local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
 
 local Players = game:GetService("Players")
