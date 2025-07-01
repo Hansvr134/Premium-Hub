@@ -33,21 +33,6 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
 local Section = Tab:CreateSection("Menu")
 
-local Players = game:GetService("Players")
-
-Players.PlayerAdded:Connect(function(player)
-    print("Welcome, " .. player.Name .. "!") -- Tampil di output
-    player:WaitForChild("PlayerGui") -- Tunggu GUI siap
-
-    -- Kirim chat pribadi
-    game.StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text = "👋 Welcome, " .. player.Name .. "!",
-        Color = Color3.fromRGB(100, 255, 100),
-        Font = Enum.Font.SourceSansBold,
-        FontSize = Enum.FontSize.Size24
-    })
-end)
-
 local Button = Tab:CreateButton({
    Name = "Copy Discord Link",
    Callback = function()
@@ -72,6 +57,58 @@ local Button = Tab:CreateButton({
 
 local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
+
+local spamEnabled = false
+local spamMessage = "Halo semua!" -- Default pesan
+local spamDelay = 1 -- Default delay (dalam detik)
+local spamConnection = nil
+
+-- Textbox untuk ubah pesan
+local Textbox = Tab:CreateInput({
+    Name = "Pesan Chat",
+    PlaceholderText = "Masukkan pesan di sini...",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Text)
+        spamMessage = Text
+    end,
+})
+
+-- Slider untuk atur kecepatan spam
+local Slider = Tab:CreateSlider({
+    Name = "Delay (detik)",
+    Range = {0.1, 10},
+    Increment = 0.1,
+    Suffix = "detik",
+    CurrentValue = 1,
+    Flag = "DelaySlider",
+    Callback = function(Value)
+        spamDelay = Value
+    end,
+})
+
+-- Toggle untuk aktifkan spam
+local Toggle = Tab:CreateToggle({
+    Name = "Spam Chat",
+    CurrentValue = false,
+    Flag = "ChatSpamToggle",
+    Callback = function(Value)
+        spamEnabled = Value
+
+        if spamEnabled then
+            spamConnection = task.spawn(function()
+                while spamEnabled do
+                    game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents")
+                        :WaitForChild("SayMessageRequest")
+                        :FireServer(spamMessage, "All")
+                    task.wait(spamDelay)
+                end
+            end)
+        else
+            spamEnabled = false
+        end
+    end,
+})
+
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
