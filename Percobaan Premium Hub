@@ -58,37 +58,6 @@ local Button = Tab:CreateButton({
 local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
 
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local infJumpEnabled = false
-local infJumpConnection = nil
-
-local Toggle = Tab:CreateToggle({
-   Name = "Infinite Jump",
-   CurrentValue = false,
-   Flag = "ToggleInfJump",
-   Callback = function(Value)
-      infJumpEnabled = Value
-
-      if infJumpEnabled then
-         infJumpConnection = UserInputService.JumpRequest:Connect(function()
-            local character = LocalPlayer.Character
-            local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-               humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-         end)
-      else
-         if infJumpConnection then
-            infJumpConnection:Disconnect()
-            infJumpConnection = nil
-         end
-      end
-   end,
-})
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
@@ -229,79 +198,82 @@ local Toggle = Tab:CreateToggle({
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-
+local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
-local espEnabled = false
-local espFolder = Instance.new("Folder", game.CoreGui)
-espFolder.Name = "ESP_Objects"
 
-local function createESP(player)
-    if player == LocalPlayer then return end
-    if player.Character and player.Character:FindFirstChild("Head") then
-        local head = player.Character.Head
+local tracerEnabled = false
+local tracers = {}
 
-        -- Buat BillboardGui di atas kepala
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "ESP Player"
-        billboard.Adornee = head
-        billboard.Size = UDim2.new(0, 100, 0, 20)
-        billboard.AlwaysOnTop = true
-        billboard.StudsOffset = Vector3.new(0, 2, 0)
-        billboard.Parent = espFolder
+-- Fungsi buat garis tracer
+local function createTracer(player)
+    local tracer = Drawing.new("Line")
+    tracer.Color = Color3.fromRGB(255, 0, 0)
+    tracer.Thickness = 2
+    tracer.Transparency = 1
+    tracer.Visible = false
+    tracers[player] = tracer
+end
 
-        -- Tambahkan TextLabel
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, 0, 1, 0)
-        label.BackgroundTransparency = 1
-        label.Text = player.Name
-        label.TextColor3 = Color3.fromRGB(255, 0, 0)
-        label.TextStrokeTransparency = 0
-        label.TextScaled = true
-        label.Font = Enum.Font.SourceSansBold
-        label.Parent = billboard
+-- Fungsi hapus garis tracer
+local function removeTracer(player)
+    if tracers[player] then
+        tracers[player]:Remove()
+        tracers[player] = nil
     end
 end
 
-local function removeAllESP()
-    espFolder:ClearAllChildren()
-end
-
--- Toggle GUI ESP
+-- Toggle ESP Tracer
 local Toggle = Tab:CreateToggle({
-    Name = "ESP Player",
+    Name = "ESP Tracer",
     CurrentValue = false,
-    Flag = "ToggleESP",
+    Flag = "ToggleTracer",
     Callback = function(Value)
-        espEnabled = Value
+        tracerEnabled = Value
 
-        if espEnabled then
-            -- Tambahkan ESP ke semua player yang ada
+        if tracerEnabled then
+            -- Tambahkan tracer untuk semua player
             for _, player in pairs(Players:GetPlayers()) do
-                createESP(player)
+                if player ~= LocalPlayer then
+                    createTracer(player)
+                end
             end
 
-            -- Tambahkan ESP saat player baru join
+            -- Update terus posisi tracer
+            RunService.RenderStepped:Connect(function()
+                if not tracerEnabled then return end
+
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = player.Character.HumanoidRootPart
+                        local screenPos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+
+                        local tracer = tracers[player]
+                        if tracer then
+                            tracer.Visible = onScreen
+                            if onScreen then
+                                tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y) -- dari bawah layar
+                                tracer.To = Vector2.new(screenPos.X, screenPos.Y)
+                            end
+                        end
+                    end
+                end
+            end)
+
+            -- Tambahkan untuk player baru
             Players.PlayerAdded:Connect(function(player)
                 player.CharacterAdded:Connect(function()
-                    wait(1)
-                    if espEnabled then
-                        createESP(player)
+                    if tracerEnabled then
+                        createTracer(player)
                     end
                 end)
             end)
 
-            -- Update jika karakter respawn
-            for _, player in pairs(Players:GetPlayers()) do
-                player.CharacterAdded:Connect(function()
-                    wait(1)
-                    if espEnabled then
-                        createESP(player)
-                    end
-                end)
-            end
         else
-            -- Hapus semua ESP
-            removeAllESP()
+            -- Hapus semua tracer
+            for _, tracer in pairs(tracers) do
+                tracer:Remove()
+            end
+            tracers = {}
         end
     end,
 })
@@ -373,6 +345,96 @@ local Toggle = Tab:CreateToggle({
          end
       end
    end,
+})
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local flyEnabled = false
+local flySpeed = 50
+local flyConnection = nil
+
+-- 🔘 Toggle: Aktifkan / Matikan Fly
+local Toggle = Tab:CreateToggle({
+    Name = "Fly Mode",
+    CurrentValue = false,
+    Flag = "ToggleFly",
+    Callback = function(Value)
+        flyEnabled = Value
+
+        if flyEnabled then
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+            local bodyGyro = Instance.new("BodyGyro", humanoidRootPart)
+            bodyGyro.P = 9e4
+            bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+            bodyGyro.CFrame = humanoidRootPart.CFrame
+
+            local bodyVelocity = Instance.new("BodyVelocity", humanoidRootPart)
+            bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+            local moveDirection = Vector3.zero
+
+            flyConnection = RunService.RenderStepped:Connect(function()
+                local camera = workspace.CurrentCamera
+                moveDirection = Vector3.zero
+
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                    moveDirection += camera.CFrame.LookVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                    moveDirection -= camera.CFrame.LookVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                    moveDirection -= camera.CFrame.RightVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                    moveDirection += camera.CFrame.RightVector
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                    moveDirection += Vector3.new(0, 1, 0)
+                end
+                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                    moveDirection -= Vector3.new(0, 1, 0)
+                end
+
+                bodyVelocity.Velocity = moveDirection.Unit * flySpeed
+                bodyGyro.CFrame = camera.CFrame
+            end)
+
+        else
+            if flyConnection then
+                flyConnection:Disconnect()
+                flyConnection = nil
+            end
+
+            local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                for _, v in pairs(hrp:GetChildren()) do
+                    if v:IsA("BodyGyro") or v:IsA("BodyVelocity") then
+                        v:Destroy()
+                    end
+                end
+            end
+        end
+    end,
+})
+
+-- 📏 Slider: Fly Speed
+local Slider = Tab:CreateSlider({
+    Name = "Fly Speed",
+    Range = {10, 200},
+    Increment = 10,
+    Suffix = "Speed",
+    CurrentValue = 50,
+    Flag = "FlySpeedSlider",
+    Callback = function(Value)
+        flySpeed = Value
+    end,
 })
 
 local Players = game:GetService("Players")
