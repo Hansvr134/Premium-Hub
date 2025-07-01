@@ -41,6 +41,15 @@ local Section = Tab:CreateSection("Menu")
 -- Dropdown buat pilih player
 local selectedPlayer = nil
 
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+
+local selectedPlayer = nil
+local spectateConnection = nil
+
+-- Dropdown UI
 local PlayerDropdown = Tab:CreateDropdown({
    Name = "Pilih Player",
    Options = {},
@@ -51,32 +60,46 @@ local PlayerDropdown = Tab:CreateDropdown({
    end,
 })
 
--- Toggle untuk Spectator
+-- Fungsi untuk update isi dropdown player
+local function updatePlayerList()
+   local playerNames = {}
+   for _, player in ipairs(Players:GetPlayers()) do
+      if player ~= LocalPlayer then
+         table.insert(playerNames, player.Name)
+      end
+   end
+   PlayerDropdown:Refresh(playerNames, true)
+end
+
+-- Panggil pertama kali saat load UI
+updatePlayerList()
+
+-- Auto refresh saat ada player join/keluar
+Players.PlayerAdded:Connect(updatePlayerList)
+Players.PlayerRemoving:Connect(updatePlayerList)
+
+-- Toggle Spectate
 local Toggle = Tab:CreateToggle({
    Name = "Spectate Player",
    CurrentValue = false,
    Flag = "SpectateToggle",
    Callback = function(Value)
-      local Camera = workspace.CurrentCamera
-      local Players = game:GetService("Players")
-      local LocalPlayer = Players.LocalPlayer
-
       if Value then
-         -- Spectate On
+         -- Aktifkan Spectate
          if selectedPlayer and Players:FindFirstChild(selectedPlayer) then
             local target = Players:FindFirstChild(selectedPlayer)
-            local connection
-            connection = game:GetService("RunService").RenderStepped:Connect(function()
-               if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            spectateConnection = RunService.RenderStepped:Connect(function()
+               if target and target.Character and target.Character:FindFirstChild("Humanoid") then
                   Camera.CameraSubject = target.Character:FindFirstChild("Humanoid")
-               else
-                  Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
-                  connection:Disconnect()
                end
             end)
          end
       else
-         -- Spectate Off
+         -- Matikan Spectate
+         if spectateConnection then
+            spectateConnection:Disconnect()
+            spectateConnection = nil
+         end
          if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
             Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
          end
