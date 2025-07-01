@@ -30,6 +30,10 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+local Tab = Window:CreateTab("Main Menu", 4483362458)
+local Section = Tab:CreateSection("Menu")
+
+
 local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
 local Section = Tab:CreateSection("Menu")
 
