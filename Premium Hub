@@ -33,6 +33,17 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
 
+local Slider = Tab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 300},
+   Increment = 10,
+   Suffix = "WalkSpeed",
+   CurrentValue = 10,
+   Flag = "Slider1",
+   Callback = function(v)
+    game.Players.localPlayers.Character.Humanoid.WalkSpeed = v
+   end,
+})
 
 local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
 local Section = Tab:CreateSection("Menu")
