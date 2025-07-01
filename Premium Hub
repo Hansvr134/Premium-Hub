@@ -1,0 +1,86 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Premium Hub",
+   Icon = 0,
+   LoadingTitle = "Loding....",
+   LoadingSubtitle = "Script by Hanzo",
+   Theme = "DarkBlue",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "HanzHub",
+      FileName = "Hanz Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "ECxQFc97F5",
+      RememberJoins = true
+   },
+   KeySystem = true,
+   KeySettings = {
+      Title = "Han Key",
+      Subtitle = "Key system shinzu",
+      Note = "Mau Key? Buy Key Premium",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"FFMN_jfgue786eh767et75egyf5"}
+   }
+})
+
+local Tab = Window:CreateTab("🥕 Grow A Garden", nil)
+local Section = Tab:CreateSection("Menu")
+
+local Button = Tab:CreateButton({
+   Name = "Lunor",
+   Callback = function(v)
+   v = loadstring(game:HttpGet("https://lunor.dev/loader"))()
+   end,
+})
+
+local Button = Tab:CreateButton({
+   Name = "Alchemy",
+   Callback = function(v)
+   v = loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()
+   end,
+})
+
+local Button = Tab:CreateButton({
+   Name = "DarkSpawner",
+   Callback = function(v)
+   v = loadstring(game:HttpGet("https://raw.githubusercontent.com/growagardensc/Dark-HUB/refs/heads/main/Dark-Spawner/Loader.lua"))()
+   end,
+})
+
+local Button = Tab:CreateButton({
+   Name = "Speed Hub",
+   Callback = function(v)
+   v = loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+   end,
+})
+
+local Tab = Window:CreateTab("🍎 Blox Fruit", nil)
+local Section = Tab:CreateSection("Menu")
+
+
+
+STab:CreateButton({
+   Name = "Discord Invite",
+   Callback = function()
+      setclipboard("https://discord.gg/EJkYJMt337")
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
