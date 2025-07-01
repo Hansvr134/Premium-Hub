@@ -55,25 +55,22 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("[⚙️]Setting", nil)
-local Section = Tab:CreateSection("Menu")
-
 local spamEnabled = false
-local spamMessage = "Halo semua!" -- Default pesan
-local spamDelay = 1 -- Delay default
+local spamMessage = "Halo semua!"
+local spamDelay = 1
 local spamThread = nil
 
--- Input untuk pesan chat
+-- Textbox: Isi pesan
 local Textbox = Tab:CreateInput({
-    Name = "Pesan Chat",
-    PlaceholderText = "Tulis pesan untuk spam...",
+    Name = "Pesan Spam",
+    PlaceholderText = "Tulis pesan spam...",
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         spamMessage = Text
     end,
 })
 
--- Slider delay
+-- Slider: Delay antar pesan
 local Slider = Tab:CreateSlider({
     Name = "Delay Spam",
     Range = {0.1, 5},
@@ -86,20 +83,20 @@ local Slider = Tab:CreateSlider({
     end,
 })
 
--- Toggle Spam Chat
+-- Toggle: Aktifkan/Matiin Spam
 local Toggle = Tab:CreateToggle({
-    Name = "Aktifkan Spam Chat",
+    Name = "Spam Chat (Semua Bisa Lihat)",
     CurrentValue = false,
-    Flag = "SpamToggle",
+    Flag = "SpamChatToggle",
     Callback = function(Value)
         spamEnabled = Value
 
         if spamEnabled then
             spamThread = task.spawn(function()
                 while spamEnabled do
-                    local chatEvent = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
-                    if chatEvent and chatEvent:FindFirstChild("SayMessageRequest") then
-                        chatEvent.SayMessageRequest:FireServer(spamMessage, "All")
+                    local chatRemote = game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents"):FindFirstChild("SayMessageRequest")
+                    if chatRemote then
+                        chatRemote:FireServer(spamMessage, "All")
                     end
                     task.wait(spamDelay)
                 end
