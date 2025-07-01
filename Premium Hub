@@ -34,15 +34,18 @@ local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
 
 local Slider = Tab:CreateSlider({
-   Name = "WalkSpeed",
-   Range = {16, 300},
-   Increment = 10,
-   Suffix = "WalkSpeed",
-   CurrentValue = 10,
-   Flag = "Slider1",
-   Callback = function(v)
-    game.Players.localPlayers.Character.Humanoid.WalkSpeed = v
-   end,
+    Name = "WalkSpeed",
+    Range = {16, 300},
+    Increment = 10,
+    Suffix = "WalkSpeed",
+    CurrentValue = 16,
+    Flag = "Slider1",
+    Callback = function(v)
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = v
+        end
+    end,
 })
 
 local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
