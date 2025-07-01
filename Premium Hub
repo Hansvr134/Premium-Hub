@@ -33,69 +33,32 @@ local Window = Rayfield:CreateWindow({
 local Tab = Window:CreateTab("Update", 4483362458) -- Title, Image
 local Section = Tab:CreateSection("Menu")
 
+local Button = Tab:CreateButton({
+   Name = "Copy Discord Link",
+   Callback = function()
+      -- Ganti link di sini dengan link Discord kamu
+      setclipboard("https://discord.gg/EJkYJMt337")
+      
+      -- Tampilkan notifikasi bahwa link sudah dicopy
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
+
 Section:Set("Updating Premium Script")
 
 local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Camera = workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-
-local selectedPlayer = nil
-local spectateConnection = nil
-
--- Dropdown Player
-local PlayerDropdown = Tab:CreateDropdown({
-   Name = "Pilih Player",
-   Options = {},
-   CurrentOption = nil,
-   Flag = "SpectateDropdown",
-   Callback = function(playerName)
-      selectedPlayer = playerName
-   end,
-})
-
--- Update Isi Dropdown
-local function updatePlayerList()
-   local options = {}
-   for _, player in ipairs(Players:GetPlayers()) do
-      if player ~= LocalPlayer then
-         table.insert(options, player.Name)
-      end
-   end
-   PlayerDropdown:Refresh(options, true)
-end
-
-updatePlayerList()
-Players.PlayerAdded:Connect(updatePlayerList)
-Players.PlayerRemoving:Connect(updatePlayerList)
-
--- Toggle Spectate
-local Toggle = Tab:CreateToggle({
-   Name = "Spectate Camera",
-   CurrentValue = false,
-   Flag = "SpectateToggle",
-   Callback = function(Value)
-      if Value and selectedPlayer then
-         local target = Players:FindFirstChild(selectedPlayer)
-         if not target or not target.Character or not target.Character:FindFirstChild("HumanoidRootPart") then return end
-
-         spectateConnection = RunService.RenderStepped:Connect(function()
-            if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-               local targetPos = target.Character.HumanoidRootPart.Position
-               Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
-            end
-         end)
-      else
-         if spectateConnection then
-            spectateConnection:Disconnect()
-            spectateConnection = nil
-         end
-      end
-   end,
-})
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
