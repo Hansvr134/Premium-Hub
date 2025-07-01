@@ -30,7 +30,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local Tab = Window:CreateTab("Update", 4483362458) -- Title, Image
+local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
 local Section = Tab:CreateSection("Menu")
 
 local Button = Tab:CreateButton({
@@ -54,8 +54,6 @@ local Button = Tab:CreateButton({
       })
    end,
 })
-
-Section:Set("Updating Premium Script")
 
 local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
