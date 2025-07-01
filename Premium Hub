@@ -38,9 +38,6 @@ Section:Set("Updating Premium Script")
 local Tab = Window:CreateTab("[⚙️]Setting", nil)
 local Section = Tab:CreateSection("Menu")
 
--- Dropdown buat pilih player
-local selectedPlayer = nil
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
@@ -49,7 +46,7 @@ local Camera = workspace.CurrentCamera
 local selectedPlayer = nil
 local spectateConnection = nil
 
--- Dropdown UI
+-- Bikin Dropdown UI
 local PlayerDropdown = Tab:CreateDropdown({
    Name = "Pilih Player",
    Options = {},
@@ -60,7 +57,7 @@ local PlayerDropdown = Tab:CreateDropdown({
    end,
 })
 
--- Fungsi untuk update isi dropdown player
+-- Fungsi Update List Player
 local function updatePlayerList()
    local playerNames = {}
    for _, player in ipairs(Players:GetPlayers()) do
@@ -71,35 +68,37 @@ local function updatePlayerList()
    PlayerDropdown:Refresh(playerNames, true)
 end
 
--- Panggil pertama kali saat load UI
+-- Jalankan saat pertama kali
 updatePlayerList()
 
--- Auto refresh saat ada player join/keluar
+-- Auto Refresh Saat Player Join / Leave
 Players.PlayerAdded:Connect(updatePlayerList)
 Players.PlayerRemoving:Connect(updatePlayerList)
 
--- Toggle Spectate
+-- Toggle Spectator Mode
 local Toggle = Tab:CreateToggle({
    Name = "Spectate Player",
    CurrentValue = false,
    Flag = "SpectateToggle",
    Callback = function(Value)
-      if Value then
-         -- Aktifkan Spectate
-         if selectedPlayer and Players:FindFirstChild(selectedPlayer) then
-            local target = Players:FindFirstChild(selectedPlayer)
-            spectateConnection = RunService.RenderStepped:Connect(function()
-               if target and target.Character and target.Character:FindFirstChild("Humanoid") then
-                  Camera.CameraSubject = target.Character:FindFirstChild("Humanoid")
-               end
-            end)
+      if Value and selectedPlayer then
+         local target = Players:FindFirstChild(selectedPlayer)
+         if not target or not target.Character then
+            warn("Target tidak valid.")
+            return
          end
+
+         spectateConnection = RunService.RenderStepped:Connect(function()
+            if target and target.Character and target.Character:FindFirstChild("Humanoid") then
+               Camera.CameraSubject = target.Character:FindFirstChild("Humanoid")
+            end
+         end)
       else
-         -- Matikan Spectate
          if spectateConnection then
             spectateConnection:Disconnect()
             spectateConnection = nil
          end
+
          if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
             Camera.CameraSubject = LocalPlayer.Character:FindFirstChild("Humanoid")
          end
