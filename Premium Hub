@@ -30,6 +30,24 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+KeySystem = true,
+
+KeySettings = {
+   Title = "Han Key",
+   Subtitle = "Key system",
+   Note = "Mau Key? Buy Key Premium",
+   FileName = "Key",
+   SaveKey = true,
+   GrabKeyFromSite = false,
+
+   -- Key hanya bisa digunakan oleh UserId tertentu
+   Key = {"Premium_jfgue786eh767et75egyf5"},
+   AllowedUsers = {
+      ["Premium_jfgue786eh767et75egyf5"] = 8309797161 -- ganti dengan UserId orang yang kamu izinkan
+   }
+}
+
+
 local Tab = Window:CreateTab("Main Menu", 4483362458)
 local Section = Tab:CreateSection("Menu")
 
