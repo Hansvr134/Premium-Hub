@@ -316,7 +316,7 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("[🍎] Blox Fruit", 12113753974)
+local Tab = Window:CreateTab("[🍎] Blox Fruit", nil)
 local Section = Tab:CreateSection("Menu")
 
 local Button = Tab:CreateButton({
