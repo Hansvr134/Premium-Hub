@@ -60,46 +60,47 @@ local Section = Tab:CreateSection("Menu")
 
 local spamEnabled = false
 local spamMessage = "Halo semua!" -- Default pesan
-local spamDelay = 1 -- Default delay (dalam detik)
-local spamConnection = nil
+local spamDelay = 1 -- Delay default
+local spamThread = nil
 
--- Textbox untuk ubah pesan
+-- Input untuk pesan chat
 local Textbox = Tab:CreateInput({
     Name = "Pesan Chat",
-    PlaceholderText = "Masukkan pesan di sini...",
+    PlaceholderText = "Tulis pesan untuk spam...",
     RemoveTextAfterFocusLost = false,
     Callback = function(Text)
         spamMessage = Text
     end,
 })
 
--- Slider untuk atur kecepatan spam
+-- Slider delay
 local Slider = Tab:CreateSlider({
-    Name = "Delay (detik)",
-    Range = {0.1, 10},
+    Name = "Delay Spam",
+    Range = {0.1, 5},
     Increment = 0.1,
     Suffix = "detik",
     CurrentValue = 1,
-    Flag = "DelaySlider",
+    Flag = "SpamDelay",
     Callback = function(Value)
         spamDelay = Value
     end,
 })
 
--- Toggle untuk aktifkan spam
+-- Toggle Spam Chat
 local Toggle = Tab:CreateToggle({
-    Name = "Spam Chat",
+    Name = "Aktifkan Spam Chat",
     CurrentValue = false,
-    Flag = "ChatSpamToggle",
+    Flag = "SpamToggle",
     Callback = function(Value)
         spamEnabled = Value
 
         if spamEnabled then
-            spamConnection = task.spawn(function()
+            spamThread = task.spawn(function()
                 while spamEnabled do
-                    game:GetService("ReplicatedStorage"):WaitForChild("DefaultChatSystemChatEvents")
-                        :WaitForChild("SayMessageRequest")
-                        :FireServer(spamMessage, "All")
+                    local chatEvent = game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents")
+                    if chatEvent and chatEvent:FindFirstChild("SayMessageRequest") then
+                        chatEvent.SayMessageRequest:FireServer(spamMessage, "All")
+                    end
                     task.wait(spamDelay)
                 end
             end)
@@ -108,7 +109,6 @@ local Toggle = Tab:CreateToggle({
         end
     end,
 })
-
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
