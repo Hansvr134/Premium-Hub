@@ -30,6 +30,13 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+local UICorner = Instance.new("UICorner", ImageLabel)
+UICorner.CornerRadius = UDim.new(0, 50) -- bikin lingkaran
+
+local UIStroke = Instance.new("UIStroke", ImageLabel)
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+
 local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
 local Section = Tab:CreateSection("Menu")
 
