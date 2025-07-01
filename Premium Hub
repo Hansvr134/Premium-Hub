@@ -76,98 +76,49 @@ local Toggle = Tab:CreateToggle({
    end,
 })
 
- 
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
-local aimbotActive = false
-local aimbotConnection = nil
+local walkSpeedEnabled = false
+local currentSpeed = 16 -- default awal
 
-local function getClosestPlayer()
-    local closestPlayer = nil
-    local shortestDistance = math.huge
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local pos = player.Character.HumanoidRootPart.Position
-            local screenPoint, onScreen = Camera:WorldToViewportPoint(pos)
-            if onScreen then
-                local dist = (Vector2.new(screenPoint.X, screenPoint.Y) - UserInputService:GetMouseLocation()).Magnitude
-                if dist < shortestDistance then
-                    closestPlayer = player
-                    shortestDistance = dist
-                end
-            end
-        end
-    end
-
-    return closestPlayer
-end
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
-local aimbotConnection = nil
-
--- Ambil target terdekat berdasarkan jarak, tanpa cek tembok
-local function GetClosestPlayer()
-    local closestPlayer = nil
-    local shortestDistance = math.huge
-
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            local targetPart = player.Character.HumanoidRootPart
-            local distance = (Camera.CFrame.Position - targetPart.Position).Magnitude
-            if distance < shortestDistance then
-                shortestDistance = distance
-                closestPlayer = player
-            end
-        end
-    end
-
-    return closestPlayer
-end
-
--- Toggle untuk aktif/nonaktif aimbot
+-- 🔘 Toggle ON/OFF
 local Toggle = Tab:CreateToggle({
-    Name = "Aimbot (Fix)",
+    Name = "WalkSpeed Aktif",
     CurrentValue = false,
-    Flag = "ToggleAimbotFix",
-    Callback = function(Value)
-        if Value then
-            -- Aktifkan Aimbot
-            aimbotConnection = RunService.RenderStepped:Connect(function()
-                local target = GetClosestPlayer()
-                if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetPos = target.Character.HumanoidRootPart.Position
-                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPos)
-                end
-            end)
-        else
-            -- Matikan Aimbot
-            if aimbotConnection then
-                aimbotConnection:Disconnect()
-                aimbotConnection = nil
+    Flag = "ToggleWalkSpeed",
+    Callback = function(enabled)
+        walkSpeedEnabled = enabled
+
+        local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if walkSpeedEnabled then
+                humanoid.WalkSpeed = currentSpeed
+            else
+                humanoid.WalkSpeed = 16 -- default
             end
         end
     end,
 })
 
+-- 📏 Slider
 local Slider = Tab:CreateSlider({
     Name = "WalkSpeed",
     Range = {16, 300},
     Increment = 10,
-    Suffix = "WalkSpeed",
+    Suffix = "Speed",
     CurrentValue = 16,
-    Flag = "Slider1",
-    Callback = function(v)
-        local player = game.Players.LocalPlayer
-        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-            player.Character.Humanoid.WalkSpeed = v
+    Flag = "SliderWalkSpeed",
+    Callback = function(value)
+        currentSpeed = value
+
+        if walkSpeedEnabled then
+            local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = currentSpeed
+            end
         end
     end,
 })
