@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Premium Hub",
+   Name = "Premium Hub | Free Version",
    Icon = 0,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
       Invite = "ECxQFc97F5",
       RememberJoins = true
    },
-   KeySystem = true,
+   KeySystem = False,
    KeySettings = {
       Title = "Han Key",
       Subtitle = "Key system",
@@ -37,7 +37,7 @@ local Button = Tab:CreateButton({
    Name = "Copy Discord Link",
    Callback = function()
       -- Ganti link di sini dengan link Discord kamu
-      setclipboard("https://discord.gg/EJkYJMt337")
+      setclipboard("https://discord.gg/ECxQFc97F5")
       
       -- Tampilkan notifikasi bahwa link sudah dicopy
       Rayfield:Notify({
