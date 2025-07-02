@@ -55,7 +55,7 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("🏠 Main", 106329810727373)
+local Tab = Window:CreateTab("🏠 Main", nil)
 local Section = Tab:CreateSection("Player Setting")
 
 local TweenService = game:GetService("TweenService")
