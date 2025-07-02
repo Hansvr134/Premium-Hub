@@ -475,80 +475,56 @@ local Toggle = Tab:CreateToggle({
    end,
 })
 
-local Section = Tab:CreateSection("Shop")
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local BuyTool = ReplicatedStorage:WaitForChild("BuyTool") -- Ganti sesuai nama Remote aslinya
-
--- Tombol beli Slap
-local ButtonSlap = Tab:CreateButton({
-   Name = "Beli Slap ($500)",
-   Callback = function()
-      BuyTool:FireServer("Slap")
-   end,
-})
-
--- Tombol beli Speed Coil
-local ButtonSpeedCoil = Tab:CreateButton({
-   Name = "Beli Speed Coil ($750)",
-   Callback = function()
-      BuyTool:FireServer("Speed Coil")
-   end,
-})
-
--- Tombol beli Trap
-local ButtonTrap = Tab:CreateButton({
-   Name = "Beli Trap",
-   Callback = function()
-      BuyTool:FireServer("Trap")
-   end,
-})
-
--- Contoh tombol tambahan lainnya
-local ButtonContoh = Tab:CreateButton({
-   Name = "Button Example",
-   Callback = function()
-      print("Tombol Example ditekan!")
-   end,
-})
-
 local Tab = Window:CreateTab("⚙️ Setting", nil)
 local Section = Tab:CreateSection("gugyfyfyf")
 
-local Button = Tab:CreateButton({
+local Toggle = Tab:CreateToggle({
     Name = "🚀 Boost FPS",
-    Callback = function()
-        -- Hapus efek pencahayaan yang berat
+    CurrentValue = false,
+    Flag = "BoostFPSToggle",
+    Callback = function(Value)
         local lighting = game:GetService("Lighting")
-        lighting.GlobalShadows = false
-        lighting.FogEnd = 100000
-        lighting.Brightness = 0
 
-        -- Matikan semua efek post-processing
-        for _, v in ipairs(lighting:GetChildren()) do
-            if v:IsA("PostEffect") then
-                v.Enabled = false
+        if Value then
+            -- BOOST ON
+            lighting.GlobalShadows = false
+            lighting.FogEnd = 100000
+            lighting.Brightness = 0
+
+            for _, v in ipairs(lighting:GetChildren()) do
+                if v:IsA("PostEffect") then
+                    v.Enabled = false
+                end
             end
-        end
 
-        -- Hapus tekstur & nonaktifkan detail visual lainnya
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
-                v.Material = Enum.Material.Plastic
-                v.Reflectance = 0
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v:Destroy()
-            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-                v.Enabled = false
-            elseif v:IsA("Explosion") then
-                v:Destroy()
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v:IsA("BasePart") or v:IsA("MeshPart") then
+                    v.Material = Enum.Material.Plastic
+                    v.Reflectance = 0
+                elseif v:IsA("Decal") or v:IsA("Texture") then
+                    v:Destroy()
+                elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                    v.Enabled = false
+                end
             end
+
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+            print("✅ Boost FPS ON")
+        else
+            -- BOOST OFF (reset ringan)
+            lighting.GlobalShadows = true
+            lighting.FogEnd = 100
+            lighting.Brightness = 2
+
+            for _, v in ipairs(lighting:GetChildren()) do
+                if v:IsA("PostEffect") then
+                    v.Enabled = true
+                end
+            end
+
+            settings().Rendering.QualityLevel = Enum.QualityLevel.Automatic
+            print("❌ Boost FPS OFF")
         end
-
-        -- Matikan shadows dan detail rendering karakter
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-
-        print("FPS Boost Activated ✅")
     end,
 })
 
