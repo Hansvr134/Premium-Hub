@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Premium Hub | Free Version",
+   Name = "STEAL A BRAINROT",
    Icon = 0,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
@@ -120,6 +120,121 @@ local Toggle = Tab:CreateToggle({
          teleportToSky()
       else
          teleportToGround()
+      end
+   end,
+})
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local speedEnabled = false
+local speedConnection = nil
+local normalSpeed = 16
+local fastSpeed = 80
+
+-- Ganti ini dengan deteksi saat mencuri brainrot
+local function isHoldingBrainrot()
+    local character = LocalPlayer.Character
+    if not character then return false end
+
+    -- Contoh deteksi: ada Tool bernama "Brainrot" atau item tertentu
+    return character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot")
+end
+
+-- Toggle untuk aktifkan deteksi dan efek kecepatan
+local Toggle = Tab:CreateToggle({
+   Name = "Auto Fast Setelah Nyuri Brainrot",
+   CurrentValue = false,
+   Flag = "ToggleBrainrotSpeed",
+   Callback = function(Value)
+      speedEnabled = Value
+
+      if speedEnabled then
+         speedConnection = RunService.Stepped:Connect(function()
+            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+               if isHoldingBrainrot() then
+                  humanoid.WalkSpeed = fastSpeed
+               else
+                  humanoid.WalkSpeed = normalSpeed
+               end
+            end
+         end)
+      else
+         if speedConnection then
+            speedConnection:Disconnect()
+            speedConnection = nil
+         end
+
+         -- Reset speed ke default
+         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+         if humanoid then
+            humanoid.WalkSpeed = normalSpeed
+         end
+      end
+   end,
+})
+
+local brainESPEnabled = false
+local espFolder = Instance.new("Folder", game.CoreGui)
+espFolder.Name = "BrainrotESP"
+
+local function createESP(obj)
+    if not obj:IsA("BasePart") then return end
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = obj
+    billboard.Size = UDim2.new(0, 100, 0, 20)
+    billboard.StudsOffset = Vector3.new(0, 2, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = espFolder
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextScaled = true
+    textLabel.Text = "🧠 Brainrot"
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.Parent = billboard
+end
+
+local function removeAllESP()
+    espFolder:ClearAllChildren()
+end
+
+local function scanBrainrotAboveMythical()
+    removeAllESP()
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("BasePart") and obj.Name:lower():find("brainrot") then
+            local y = obj.Position.Y
+            if y > 100 then -- ubah angka ini sesuai ketinggian Mythical
+                createESP(obj)
+            end
+        end
+    end
+end
+
+-- Toggle Rayfield
+Tab:CreateToggle({
+   Name = "ESP Brainrot di atas Mythical",
+   CurrentValue = false,
+   Flag = "ESPBrainrotToggle",
+   Callback = function(state)
+      brainESPEnabled = state
+
+      if state then
+         task.spawn(function()
+            while brainESPEnabled do
+                scanBrainrotAboveMythical()
+                task.wait(2)
+            end
+         end)
+      else
+         removeAllESP()
       end
    end,
 })
