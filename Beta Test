@@ -513,7 +513,7 @@ local ButtonContoh = Tab:CreateButton({
 })
 
 local Tab = Window:CreateTab("⚙️ Setting", nil)
-local Section = Tab:CreateSection("Moded")
+local Section = Tab:CreateSection("gugyfyfyf")
 
 local Button = Tab:CreateButton({
     Name = "🚀 Boost FPS",
