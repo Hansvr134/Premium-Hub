@@ -55,8 +55,7 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("🏠 Main", nil)
-local Section = Tab:CreateSection("Menu")
+local Tab = Window:CreateTab("🏠 Main", 106329810727373)
 local Section = Tab:CreateSection("Player Setting")
 
 local TweenService = game:GetService("TweenService")
@@ -260,6 +259,98 @@ local Toggle = Tab:CreateToggle({
                end
             end
          end
+      end
+   end,
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local espEnabled = false
+local espObjects = {}
+
+-- Fungsi untuk membuat ESP untuk satu player
+local function createESP(player)
+    if player == Players.LocalPlayer then return end
+    if espObjects[player] then return end
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    local tracer = Drawing.new("Line")
+    tracer.Thickness = 2
+    tracer.Color = Color3.fromRGB(0, 255, 0)
+    tracer.Visible = true
+
+    local box = Drawing.new("Square")
+    box.Thickness = 1.5
+    box.Color = Color3.fromRGB(255, 0, 0)
+    box.Visible = true
+    box.Filled = false
+
+    espObjects[player] = {Tracer = tracer, Box = box}
+end
+
+-- Hapus ESP ketika dimatikan atau player keluar
+local function clearESP()
+    for _, v in pairs(espObjects) do
+        v.Tracer:Remove()
+        v.Box:Remove()
+    end
+    espObjects = {}
+end
+
+-- Update posisi Tracer & Box setiap frame
+RunService.RenderStepped:Connect(function()
+    if not espEnabled then return end
+
+    for player, data in pairs(espObjects) do
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = player.Character.HumanoidRootPart
+            local pos, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+            local size = 5
+
+            if onScreen then
+                -- Tracer
+                data.Tracer.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                data.Tracer.To = Vector2.new(pos.X, pos.Y)
+                data.Tracer.Visible = true
+
+                -- Box
+                data.Box.Position = Vector2.new(pos.X - size * 2, pos.Y - size * 3)
+                data.Box.Size = Vector2.new(size * 4, size * 6)
+                data.Box.Visible = true
+            else
+                data.Tracer.Visible = false
+                data.Box.Visible = false
+            end
+        end
+    end
+end)
+
+-- Toggle GUI (Rayfield)
+local Toggle = Tab:CreateToggle({
+   Name = "ESP Tracer + Box",
+   CurrentValue = false,
+   Flag = "ToggleESPTracerBox",
+   Callback = function(Value)
+      espEnabled = Value
+
+      if Value then
+         for _, player in pairs(Players:GetPlayers()) do
+            createESP(player)
+         end
+
+         -- Tambah ESP jika ada player baru join
+         Players.PlayerAdded:Connect(function(player)
+             player.CharacterAdded:Connect(function()
+                 task.wait(1)
+                 if espEnabled then
+                     createESP(player)
+                 end
+             end)
+         end)
+      else
+         clearESP()
       end
    end,
 })
