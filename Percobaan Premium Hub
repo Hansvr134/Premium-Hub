@@ -441,59 +441,6 @@ local Slider = Tab:CreateSlider({
     end,
 })
 
-local Tab = Window:CreateTab("[🥕] Grow A Garden", nil)
-local Section = Tab:CreateSection("Menu")
-
-local Button = Tab:CreateButton({
-   Name = "Lunor",
-   Callback = function(v)
-   v = loadstring(game:HttpGet("https://lunor.dev/loader"))()
-   end,
-})
-
-local Button = Tab:CreateButton({
-   Name = "Alchemy",
-   Callback = function(v)
-   v = loadstring(game:HttpGet("https://scripts.alchemyhub.xyz"))()
-   end,
-})
-
-local Button = Tab:CreateButton({
-   Name = "Than Hub",
-   Callback = function(v)
-   v = loadstring(game:HttpGet("https://raw.githubusercontent.com/thantzy/thanhub/refs/heads/main/thanv1"))()
-   end,
-})
-
-local Button = Tab:CreateButton({
-   Name = "Speed Hub",
-   Callback = function(v)
-   v = loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-   end,
-})
-
-local Tab = Window:CreateTab("[🍎] Blox Fruit", nil)
-local Section = Tab:CreateSection("Menu")
-
-local Button = Tab:CreateButton({
-   Name = "Redz",
-   Callback = function(v)
-   v = loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))(Settings)
-   end,
-})
-
-local Tab = Window:CreateTab("[🟣] Arise Crossover", nil)
-local Section = Tab:CreateSection("Menu Coming soon")
-
-local Tab = Window:CreateTab("[🗡] Blade ball", nil)
-local Section = Tab:CreateSection("Menu Coming soon")
-
-local Tab = Window:CreateTab("[🐟] Fisch", nil)
-local Section = Tab:CreateSection("Menu Coming soon")
-
-local Tab = Window:CreateTab("[🌮] Steal a Brainrot", nil)
-local Section = Tab:CreateSection("Menu Coming soon")
-
 STab:CreateButton({
    Name = "Discord Invite",
    Callback = function()
