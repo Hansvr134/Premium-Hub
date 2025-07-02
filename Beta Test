@@ -478,21 +478,14 @@ local Toggle = Tab:CreateToggle({
 local Section = Tab:CreateSection("Shop")
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BuyTool = ReplicatedStorage:WaitForChild("BuyTool") -- Ganti sesuai nama Remote aslinya
 
 local Button = Tab:CreateButton({
-   Name = "Buy Slap",
-   Callback = function()
-      -- Contoh: misalnya RemoteEvent-nya bernama "BuyItem"
-      local remote = ReplicatedStorage:FindFirstChild("BuyItem")
-
-      if remote and remote:IsA("RemoteEvent") then
-         remote:FireServer("Slap") -- asumsi argumen adalah nama item
-      else
-         warn("Remote BuyItem tidak ditemukan atau bukan RemoteEvent")
-      end
-   end,
+    Name = "Beli Slap",
+    Callback = function()
+        BuyTool:FireServer("Slap") -- Atau ganti dengan parameter yang benar
+    end,
 })
-
 
 STab:CreateButton({
    Name = "Discord Invite",
