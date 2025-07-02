@@ -55,8 +55,9 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("[⚙️]Setting", nil)
+local Tab = Window:CreateTab("🏠 Main", nil)
 local Section = Tab:CreateSection("Menu")
+local Section = Tab:CreateSection("Player Setting")
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
@@ -112,7 +113,7 @@ end
 
 -- Toggle untuk aktifkan/matikan teleportasi
 local Toggle = Tab:CreateToggle({
-   Name = "Teleport ke Sky",
+   Name = "Sky",
    CurrentValue = false,
    Flag = "ToggleSkyTeleport",
    Callback = function(Value)
@@ -124,120 +125,146 @@ local Toggle = Tab:CreateToggle({
    end,
 })
 
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local humanoid = char:WaitForChild("Humanoid")
+local root = char:WaitForChild("HumanoidRootPart")
+
+local boostJumpEnabled = false
+local boostJumpConnection = nil
+
+-- Toggle Rayfield
+local Toggle = Tab:CreateToggle({
+   Name = "Boost Jump",
+   CurrentValue = false,
+   Flag = "ToggleBoostJump",
+   Callback = function(Value)
+      boostJumpEnabled = Value
+
+      if boostJumpEnabled then
+         -- Sambungkan event loncat
+         boostJumpConnection = UserInputService.JumpRequest:Connect(function()
+            if boostJumpEnabled and humanoid and root then
+                root.AssemblyLinearVelocity = Vector3.new(0, 100, 0)
+                local gravityConn
+                gravityConn = RunService.Stepped:Connect(function()
+                    if not char or not root or not humanoid or not boostJumpEnabled then
+                        gravityConn:Disconnect()
+                        return
+                    end
+
+                    if humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+                        root.Velocity = Vector3.new(root.Velocity.X, math.clamp(root.Velocity.Y, -20, 150), root.Velocity.Z)
+                    elseif humanoid.FloorMaterial ~= Enum.Material.Air then
+                        gravityConn:Disconnect()
+                    end
+                end)
+            end
+         end)
+      else
+         -- Disconnect jika dinonaktifkan
+         if boostJumpConnection then
+            boostJumpConnection:Disconnect()
+            boostJumpConnection = nil
+         end
+      end
+   end,
+})
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 
-local speedEnabled = false
-local speedConnection = nil
-local normalSpeed = 16
-local fastSpeed = 80
+local humanoid = nil
+local godConnection = nil
 
--- Ganti ini dengan deteksi saat mencuri brainrot
-local function isHoldingBrainrot()
-    local character = LocalPlayer.Character
-    if not character then return false end
-
-    -- Contoh deteksi: ada Tool bernama "Brainrot" atau item tertentu
-    return character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot")
+-- Fungsi update character & humanoid
+local function updateCharacter()
+    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+    humanoid = char:FindFirstChildOfClass("Humanoid")
 end
 
--- Toggle untuk aktifkan deteksi dan efek kecepatan
-local Toggle = Tab:CreateToggle({
-   Name = "Auto Fast Setelah Nyuri Brainrot",
-   CurrentValue = false,
-   Flag = "ToggleBrainrotSpeed",
-   Callback = function(Value)
-      speedEnabled = Value
+-- Fungsi God Mode
+local function setGodMode(on)
+    if not humanoid then updateCharacter() end
+    if not humanoid then return end
 
-      if speedEnabled then
-         speedConnection = RunService.Stepped:Connect(function()
-            local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-               if isHoldingBrainrot() then
-                  humanoid.WalkSpeed = fastSpeed
-               else
-                  humanoid.WalkSpeed = normalSpeed
+    if on then
+        humanoid.MaxHealth = math.huge
+        humanoid.Health = math.huge
+        if godConnection then godConnection:Disconnect() end
+        godConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
+            if humanoid.Health < math.huge then
+                humanoid.Health = math.huge
+            end
+        end)
+    else
+        if godConnection then godConnection:Disconnect() end
+        godConnection = nil
+        pcall(function()
+            humanoid.MaxHealth = 100
+            humanoid.Health = 100
+        end)
+    end
+end
+
+-- Toggle Rayfield untuk God Mode
+local Toggle = Tab:CreateToggle({
+   Name = "GodMode",
+   CurrentValue = false,
+   Flag = "ToggleGodMode",
+   Callback = function(Value)
+      setGodMode(Value)
+   end,
+})
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local noclipConnection = nil
+
+local Toggle = Tab:CreateToggle({
+   Name = "Noclip",
+   CurrentValue = false,
+   Flag = "ToggleNoclip",
+   Callback = function(Value)
+      if Value then
+         -- Aktifkan Noclip
+         noclipConnection = RunService.Stepped:Connect(function()
+            local character = LocalPlayer.Character
+            if character then
+               for _, part in pairs(character:GetDescendants()) do
+                  if part:IsA("BasePart") then
+                     part.CanCollide = false
+                  end
                end
             end
          end)
       else
-         if speedConnection then
-            speedConnection:Disconnect()
-            speedConnection = nil
+         -- Nonaktifkan Noclip
+         if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
          end
 
-         -- Reset speed ke default
-         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-         local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-         if humanoid then
-            humanoid.WalkSpeed = normalSpeed
+         -- Kembalikan CanCollide ke true
+         local character = LocalPlayer.Character
+         if character then
+            for _, part in pairs(character:GetDescendants()) do
+               if part:IsA("BasePart") then
+                  part.CanCollide = true
+               end
+            end
          end
       end
    end,
 })
 
-local brainESPEnabled = false
-local espFolder = Instance.new("Folder", game.CoreGui)
-espFolder.Name = "BrainrotESP"
-
-local function createESP(obj)
-    if not obj:IsA("BasePart") then return end
-    local billboard = Instance.new("BillboardGui")
-    billboard.Adornee = obj
-    billboard.Size = UDim2.new(0, 100, 0, 20)
-    billboard.StudsOffset = Vector3.new(0, 2, 0)
-    billboard.AlwaysOnTop = true
-    billboard.Parent = espFolder
-
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-    textLabel.TextStrokeTransparency = 0
-    textLabel.TextScaled = true
-    textLabel.Text = "🧠 Brainrot"
-    textLabel.Font = Enum.Font.GothamBold
-    textLabel.Parent = billboard
-end
-
-local function removeAllESP()
-    espFolder:ClearAllChildren()
-end
-
-local function scanBrainrotAboveMythical()
-    removeAllESP()
-    for _, obj in pairs(workspace:GetDescendants()) do
-        if obj:IsA("BasePart") and obj.Name:lower():find("brainrot") then
-            local y = obj.Position.Y
-            if y > 100 then -- ubah angka ini sesuai ketinggian Mythical
-                createESP(obj)
-            end
-        end
-    end
-end
-
--- Toggle Rayfield
-Tab:CreateToggle({
-   Name = "ESP Brainrot di atas Mythical",
-   CurrentValue = false,
-   Flag = "ESPBrainrotToggle",
-   Callback = function(state)
-      brainESPEnabled = state
-
-      if state then
-         task.spawn(function()
-            while brainESPEnabled do
-                scanBrainrotAboveMythical()
-                task.wait(2)
-            end
-         end)
-      else
-         removeAllESP()
-      end
-   end,
-})
+local Section = Tab:CreateSection("AimBot")
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
