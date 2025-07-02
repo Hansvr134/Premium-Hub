@@ -512,7 +512,7 @@ local ButtonContoh = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("⚙️ Setting", 4483362458) -- Title, Image
+local Tab = Window:CreateTab("⚙️ Setting", nil) 
 local Section = Tab:CreateSection("Moded")
 
 local Button = Tab:CreateButton({
