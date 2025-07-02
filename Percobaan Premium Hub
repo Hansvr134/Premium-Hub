@@ -60,30 +60,26 @@ local Section = Tab:CreateSection("Menu")
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local root = Character:WaitForChild("HumanoidRootPart")
-local humanoid = Character:WaitForChild("Humanoid")
-local godConnection
 
--- Fungsi untuk update karakter saat respawn
+-- Update karakter kalau respawn
 local function updateCharacter()
     Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     root = Character:WaitForChild("HumanoidRootPart")
-    humanoid = Character:WaitForChild("Humanoid")
 end
 
--- Posisi pintu
+-- Daftar posisi pintu
 local doorPositions = {
     Vector3.new(-466, -1, 220), Vector3.new(-466, -2, 116), Vector3.new(-466, -2, 8),
     Vector3.new(-464, -2, -102), Vector3.new(-351, -2, -100), Vector3.new(-354, -2, 5),
     Vector3.new(-354, -2, 115), Vector3.new(-358, -2, 223)
 }
 
--- Fungsi cari pintu terdekat
+-- Cari pintu terdekat
 local function getNearestDoor()
-    if not root then return nil end
+    if not root then updateCharacter() end
     local closest, minDist = nil, math.huge
     for _, door in ipairs(doorPositions) do
         local dist = (root.Position - door).Magnitude
@@ -95,7 +91,7 @@ local function getNearestDoor()
     return closest
 end
 
--- Fungsi teleport ke atas (langit)
+-- Teleport ke pintu lalu ke langit
 local function teleportToSky()
     if not root then updateCharacter() end
     local door = getNearestDoor()
@@ -106,7 +102,7 @@ local function teleportToSky()
     end
 end
 
--- Fungsi turun ke bawah
+-- Turun ke tanah
 local function teleportToGround()
     if not root then updateCharacter() end
     if root then
@@ -114,41 +110,15 @@ local function teleportToGround()
     end
 end
 
--- Fungsi God Mode
-local function setGodMode(on)
-    if not humanoid then updateCharacter() end
-    if not humanoid then return end
-
-    if on then
-        humanoid.MaxHealth = math.huge
-        humanoid.Health = math.huge
-        if godConnection then godConnection:Disconnect() end
-        godConnection = humanoid:GetPropertyChangedSignal("Health"):Connect(function()
-            if humanoid.Health < math.huge then
-                humanoid.Health = math.huge
-            end
-        end)
-    else
-        if godConnection then godConnection:Disconnect() end
-        godConnection = nil
-        pcall(function()
-            humanoid.MaxHealth = 100
-            humanoid.Health = 100
-        end)
-    end
-end
-
--- ✅ Gabung dengan Rayfield Toggle
+-- Toggle untuk aktifkan/matikan teleportasi
 local Toggle = Tab:CreateToggle({
-   Name = "GodMode + Sky Teleport",
+   Name = "Teleport ke Sky",
    CurrentValue = false,
-   Flag = "ToggleGodSky",
+   Flag = "ToggleSkyTeleport",
    Callback = function(Value)
       if Value then
-         setGodMode(true)
          teleportToSky()
       else
-         setGodMode(false)
          teleportToGround()
       end
    end,
