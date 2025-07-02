@@ -1,7 +1,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Premium Hub | Free Version",
+   Name = "Premium Hub | Premium Version",
    Icon = 0,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
