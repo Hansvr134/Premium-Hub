@@ -512,6 +512,69 @@ local ButtonContoh = Tab:CreateButton({
    end,
 })
 
+local Tab = Window:CreateTab("⚙️ Setting", 4483362458) -- Title, Image
+local Section = Tab:CreateSection("Moded")
+
+local Button = Tab:CreateButton({
+    Name = "🚀 Boost FPS",
+    Callback = function()
+        -- Hapus efek pencahayaan yang berat
+        local lighting = game:GetService("Lighting")
+        lighting.GlobalShadows = false
+        lighting.FogEnd = 100000
+        lighting.Brightness = 0
+
+        -- Matikan semua efek post-processing
+        for _, v in ipairs(lighting:GetChildren()) do
+            if v:IsA("PostEffect") then
+                v.Enabled = false
+            end
+        end
+
+        -- Hapus tekstur & nonaktifkan detail visual lainnya
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") then
+                v.Material = Enum.Material.Plastic
+                v.Reflectance = 0
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v:Destroy()
+            elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                v.Enabled = false
+            elseif v:IsA("Explosion") then
+                v:Destroy()
+            end
+        end
+
+        -- Matikan shadows dan detail rendering karakter
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+
+        print("FPS Boost Activated ✅")
+    end,
+})
+
+local Toggle = Tab:CreateToggle({
+    Name = "🌫️ No Fog",
+    CurrentValue = false,
+    Flag = "NoFogToggle",
+    Callback = function(Value)
+        local lighting = game:GetService("Lighting")
+
+        if Value then
+            -- Aktifkan No Fog
+            lighting.FogStart = 100000
+            lighting.FogEnd = 100000
+            lighting.FogColor = Color3.fromRGB(255, 255, 255)
+            print("Fog dimatikan ✅")
+        else
+            -- Aktifkan kembali fog default
+            lighting.FogStart = 0
+            lighting.FogEnd = 100
+            lighting.FogColor = Color3.fromRGB(192, 192, 192)
+            print("Fog dinyalakan kembali ❌")
+        end
+    end,
+})
+
 STab:CreateButton({
    Name = "Discord Invite",
    Callback = function()
