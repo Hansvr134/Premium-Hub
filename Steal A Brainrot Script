@@ -476,7 +476,7 @@ local Toggle = Tab:CreateToggle({
 })
 
 local Tab = Window:CreateTab("⚙️ Setting", nil)
-local Section = Tab:CreateSection("Seting Player")
+local Section = Tab:CreateSection("Moded")
 
 local Toggle = Tab:CreateToggle({
     Name = "🚀 Boost FPS",
