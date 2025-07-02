@@ -329,7 +329,7 @@ end)
 
 -- Toggle GUI (Rayfield)
 local Toggle = Tab:CreateToggle({
-   Name = "ESP Tracer + Box",
+   Name = "ESP",
    CurrentValue = false,
    Flag = "ToggleESPTracerBox",
    Callback = function(Value)
@@ -356,6 +356,66 @@ local Toggle = Tab:CreateToggle({
 })
 
 local Section = Tab:CreateSection("AimBot")
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+
+local selectedPlayer = nil
+local aimbotEnabled = false
+local connection = nil
+
+-- Dropdown untuk memilih target player
+local Dropdown = Tab:CreateDropdown({
+    Name = "Pilih Target Aimbot",
+    Options = {},
+    CurrentOption = "",
+    Flag = "AimbotTarget",
+    Callback = function(option)
+        selectedPlayer = Players:FindFirstChild(option)
+    end,
+})
+
+-- Refresh Dropdown setiap kali ada player join/leave
+local function updateDropdown()
+    local names = {}
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            table.insert(names, player.Name)
+        end
+    end
+    Dropdown:SetOptions(names)
+end
+
+-- Update daftar pemain saat ada perubahan
+updateDropdown()
+Players.PlayerAdded:Connect(updateDropdown)
+Players.PlayerRemoving:Connect(updateDropdown)
+
+-- Toggle Aimbot
+local Toggle = Tab:CreateToggle({
+    Name = "Aimbot Lock Manual",
+    CurrentValue = false,
+    Flag = "ToggleAimbotManual",
+    Callback = function(value)
+        aimbotEnabled = value
+
+        if aimbotEnabled then
+            connection = RunService.RenderStepped:Connect(function()
+                if selectedPlayer and selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = selectedPlayer.Character.HumanoidRootPart
+                    Camera.CFrame = CFrame.new(Camera.CFrame.Position, hrp.Position)
+                end
+            end)
+        else
+            if connection then
+                connection:Disconnect()
+                connection = nil
+            end
+        end
+    end,
+})
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
