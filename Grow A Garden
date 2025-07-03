@@ -1,1 +1,121 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+local Window = Rayfield:CreateWindow({
+   Name = "HLemon Hub | Grow A Garden",
+   Icon = 106329810727373,
+   LoadingTitle = "Loding....",
+   LoadingSubtitle = "Script by Hanzo",
+   Theme = "DarkBlue",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "HanzHub",
+      FileName = "Hanz Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "ECxQFc97F5",
+      RememberJoins = true
+   },
+   KeySystem = False,
+   KeySettings = {
+      Title = "Han Key",
+      Subtitle = "Key system",
+      Note = "Mau Key? Buy Key Premium",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Premium_jfgue786eh767et75egyf5"}
+   }
+})
+
+local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
+local Section = Tab:CreateSection("Menu")
+
+local Button = Tab:CreateButton({
+   Name = "Copy Discord Link",
+   Callback = function()
+      -- Ganti link di sini dengan link Discord kamu
+      setclipboard("https://discord.gg/ECxQFc97F5")
+      
+      -- Tampilkan notifikasi bahwa link sudah dicopy
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
+
+local Tab = Window:CreateTab("🏠 Main", nil)
+local Section = Tab:CreateSection("Main Hub")
+
+local fruitFolder = workspace.Farm.Farm.Important.Plants_Physical
+local player = game.Players.LocalPlayer
+local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+local collectDistance = 10
+
+local function getPosition(object)
+    if object:IsA("BasePart") then
+        return object.Position
+    elseif object:IsA("Model") then
+        if object.PrimaryPart then
+            return object.PrimaryPart.Position
+        else
+            local part = object:FindFirstChildWhichIsA("BasePart")
+            if part then
+                return part.Position
+            end
+        end
+    end
+    return nil
+end
+
+local function autoCollect()
+    for _, fruit in pairs(fruitFolder:GetChildren()) do
+        local fruitPosition = getPosition(fruit)
+        if fruitPosition then
+            local distance = (humanoidRootPart.Position - fruitPosition).Magnitude
+            if distance <= collectDistance then
+                print("Collecting:", fruit.Name)
+                fruit:Destroy()
+            end
+        else
+            warn(fruit.Name .. " tidak punya posisi!")
+        end
+    end
+end
+
+while task.wait(1) do
+    autoCollect()
+end
+
+local Tab = Window:CreateTab("🗺️Teleport", nil)
+local Section = Tab:CreateSection("Main Teleport")
+
+STab:CreateButton({
+   Name = "Discord Invite",
+   Callback = function()
+      setclipboard("https://discord.gg/EJkYJMt337")
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
