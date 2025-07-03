@@ -1,6 +1,8 @@
-if game.PlaceId ~= 116495829188952 then
-    game.Players.LocalPlayer:Kick("Only Dead Rails")
-    return
+if game.PlaceId == 70876832253163 or game.PlaceId == 11649582918852 then
+    print("Script aktif di game ini!")
+    -- tulis logic auto farm atau lainnya di sini
+else
+    warn("Game ini tidak didukung")
 end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -61,32 +63,80 @@ local Button = Tab:CreateButton({
 })
 
 local Tab = Window:CreateTab("🏠 Main", nil)
+local Section = Tab:CreateSection("Main Hub")
+
+
 local Section = Tab:CreateSection("Player Setting")
 
-local Toggle = Tab:CreateToggle({
-   Name = "🤖 Auto Farm Bond",
-   CurrentValue = false,
-   Flag = "AutoFarmBond",
-   Callback = function(Value)
-      getgenv().AutoFarmBond = Value
+local player = game.Players.LocalPlayer
+local camera = workspace.CurrentCamera
 
+local connection -- buat referensi supaya bisa disconnect ketika toggle dimatikan
+
+local Toggle = Tab:CreateToggle({
+   Name = "Unlock Camera",
+   CurrentValue = false,
+   Flag = "UnlockCamera",
+   Callback = function(Value)
       if Value then
-         task.spawn(function()
-            while getgenv().AutoFarmBond and task.wait(1) do
-               pcall(function()
-                  for _, v in pairs(workspace:GetDescendants()) do
-                      if v:IsA("TouchTransmitter") and v.Parent.Name:lower():find("bond") then
-                          local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                          if hrp then
-                              firetouchinterest(hrp, v.Parent, 0)
-                              task.wait(0.1)
-                              firetouchinterest(hrp, v.Parent, 1)
-                          end
-                      end
-                  end
-               end)
-            end
+         -- ketika toggle dihidupkan
+         connection = game:GetService("RunService").RenderStepped:Connect(function()
+             player.CameraMaxZoomDistance = 1000
+             player.CameraMinZoomDistance = 0.5
+             player.CameraMode = Enum.CameraMode.Classic
+
+             if camera.CameraSubject ~= player.Character:FindFirstChildWhichIsA("Humanoid") then
+                 camera.CameraSubject = player.Character:FindFirstChildWhichIsA("Humanoid")
+             end
          end)
+      else
+         -- ketika toggle dimatikan
+         if connection then
+             connection:Disconnect()
+             connection = nil
+         end
+
+         -- reset ke default Roblox
+         player.CameraMaxZoomDistance = 10
+         player.CameraMinZoomDistance = 0.5
+         player.CameraMode = Enum.CameraMode.LockFirstPerson -- atau Classic, tergantung game
+         if player.Character and player.Character:FindFirstChildWhichIsA("Humanoid") then
+             camera.CameraSubject = player.Character:FindFirstChildWhichIsA("Humanoid")
+         end
+      end
+   end,
+})
+
+local Tab = Window:CreateTab("🗺️Teleport", nil)
+local Section = Tab:CreateSection("Main Teleport")
+local Button = Tab:CreateButton({
+   Name = "🚆 Teleport ke Kereta Terdekat",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local character = player.Character or player.CharacterAdded:Wait()
+      local hrp = character:WaitForChild("HumanoidRootPart")
+
+      local closestTrain = nil
+      local shortestDistance = math.huge
+
+      for _, v in pairs(workspace.Terrain:GetDescendants()) do
+         if v:IsA("Model") and v:FindFirstChildWhichIsA("BasePart") then
+            if v.Name:lower():find("train") then
+               local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
+               local dist = (hrp.Position - part.Position).Magnitude
+               if dist < shortestDistance then
+                  shortestDistance = dist
+                  closestTrain = part
+               end
+            end
+         end
+      end
+
+      if closestTrain then
+         hrp.CFrame = closestTrain.CFrame + Vector3.new(0, 5, 0)
+         warn("✅ Teleport ke kereta terdekat berhasil")
+      else
+         warn("🚫 Tidak menemukan kereta di Terrain")
       end
    end,
 })
