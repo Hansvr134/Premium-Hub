@@ -109,37 +109,6 @@ local Toggle = Tab:CreateToggle({
 
 local Tab = Window:CreateTab("🗺️Teleport", nil)
 local Section = Tab:CreateSection("Main Teleport")
-local Button = Tab:CreateButton({
-   Name = "🚆 Teleport ke Kereta Terdekat",
-   Callback = function()
-      local player = game.Players.LocalPlayer
-      local character = player.Character or player.CharacterAdded:Wait()
-      local hrp = character:WaitForChild("HumanoidRootPart")
-
-      local closestTrain = nil
-      local shortestDistance = math.huge
-
-      for _, v in pairs(workspace.Terrain:GetDescendants()) do
-         if v:IsA("Model") and v:FindFirstChildWhichIsA("BasePart") then
-            if v.Name:lower():find("train") then
-               local part = v.PrimaryPart or v:FindFirstChildWhichIsA("BasePart")
-               local dist = (hrp.Position - part.Position).Magnitude
-               if dist < shortestDistance then
-                  shortestDistance = dist
-                  closestTrain = part
-               end
-            end
-         end
-      end
-
-      if closestTrain then
-         hrp.CFrame = closestTrain.CFrame + Vector3.new(0, 5, 0)
-         warn("✅ Teleport ke kereta terdekat berhasil")
-      else
-         warn("🚫 Tidak menemukan kereta di Terrain")
-      end
-   end,
-})
 
 STab:CreateButton({
    Name = "Discord Invite",
