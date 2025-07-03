@@ -65,6 +65,55 @@ local Button = Tab:CreateButton({
 local Tab = Window:CreateTab("🏠 Main", nil)
 local Section = Tab:CreateSection("Main Hub")
 
+local RunService = game:GetService("RunService")
+
+local espEnabled = false
+local espInstance = nil
+
+local function createOreESP()
+    local ore = workspace.Ore:FindFirstChild("GoldOre")
+    if ore then
+        local adornee = ore:IsA("Model") and ore:FindFirstChildWhichIsA("BasePart") or ore
+        if not adornee then return end
+
+        local bb = Instance.new("BillboardGui")
+        bb.Size = UDim2.new(0, 100, 0, 50)
+        bb.AlwaysOnTop = true
+        bb.Adornee = adornee
+        bb.Name = "OreESP"
+        bb.Parent = adornee
+
+        local lbl = Instance.new("TextLabel", bb)
+        lbl.Size = UDim2.new(1,0,1,0)
+        lbl.BackgroundTransparency = 1
+        lbl.Text = "Gold Ore"
+        lbl.TextScaled = true
+        lbl.TextColor3 = Color3.new(1,1,0)
+
+        espInstance = bb
+    end
+end
+
+local function removeOreESP()
+    if espInstance and espInstance.Parent then
+        espInstance:Destroy()
+        espInstance = nil
+    end
+end
+
+Tab:CreateToggle({
+    Name = "ESP Gold Ore",
+    CurrentValue = false,
+    Flag = "ToggleOreESP",
+    Callback = function(Value)
+        espEnabled = Value
+        if espEnabled then
+            createOreESP()
+        else
+            removeOreESP()
+        end
+    end,
+})
 
 local Section = Tab:CreateSection("Player Setting")
 
