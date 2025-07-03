@@ -1,1 +1,138 @@
 
+if game.PlaceId ~= 109983668079237 then
+    game.Players.LocalPlayer:Kick("❌ Gunain Script ini Hanya di Steal A brainrot : By Han")
+    return
+end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "HLemon Hub V 1.0.3 | STEAL A BRAINROT",
+   Icon = 106329810727373,
+   LoadingTitle = "Loding....",
+   LoadingSubtitle = "Script by Hanzo",
+   Theme = "DarkBlue",
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "HanzHub",
+      FileName = "Hanz Hub"
+   },
+   Discord = {
+      Enabled = true,
+      Invite = "ECxQFc97F5",
+      RememberJoins = true
+   },
+   KeySystem = False,
+   KeySettings = {
+      Title = "Han Key",
+      Subtitle = "Key system",
+      Note = "Mau Key? Buy Key Premium",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Premium_jfgue786eh767et75egyf5"}
+   }
+})
+
+local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
+local Section = Tab:CreateSection("Menu")
+
+local Button = Tab:CreateButton({
+   Name = "Copy Discord Link",
+   Callback = function()
+      -- Ganti link di sini dengan link Discord kamu
+      setclipboard("https://discord.gg/ECxQFc97F5")
+      
+      -- Tampilkan notifikasi bahwa link sudah dicopy
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
+
+local Tab = Window:CreateTab("🏠 Main", nil)
+local Section = Tab:CreateSection("Main Hub")
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Blade Ball Hub",
+   LoadingTitle = "Loading...",
+   LoadingSubtitle = "by You",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "BladeBallHub",
+      FileName = "Config"
+   }
+})
+
+local Tab = Window:CreateTab("Auto", nil)
+local Section = Tab:CreateSection("Auto Parry")
+
+local autoParryEnabled = false
+local connection = nil
+
+Tab:CreateToggle({
+   Name = "⚔️ Auto Parry",
+   CurrentValue = false,
+   Flag = "AutoParry",
+   Callback = function(Value)
+      autoParryEnabled = Value
+
+      if autoParryEnabled then
+         connection = game:GetService("RunService").Heartbeat:Connect(function()
+            local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            local ball = workspace:FindFirstChild("Ball")
+            if ball and hrp then
+                local dist = (hrp.Position - ball.Position).Magnitude
+                if dist < 25 then -- jarak trigger
+                    ReplicatedStorage.Remotes.Parry:FireServer()
+                    warn("⚔️ Auto Parry triggered at distance:", math.floor(dist))
+                end
+            end
+         end)
+         print("✅ Auto Parry ON")
+      else
+         if connection then
+            connection:Disconnect()
+            connection = nil
+         end
+         print("❌ Auto Parry OFF")
+      end
+   end,
+})
+
+STab:CreateButton({
+   Name = "Discord Invite",
+   Callback = function()
+      setclipboard("https://discord.gg/EJkYJMt337")
+      Rayfield:Notify({
+         Title = "Copied!",
+         Content = "Discord link copied to clipboard.",
+         Duration = 2,
+         Image = 4483362458,
+         Actions = {
+            Ignore = {
+               Name = "OK",
+               Callback = function() end
+            }
+         }
+      })
+   end,
+})
