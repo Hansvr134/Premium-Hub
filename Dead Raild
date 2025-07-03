@@ -1,5 +1,5 @@
-if game.PlaceId ~= 109983668079237 then
-    game.Players.LocalPlayer:Kick("❌ Gunain Script ini Hanya di Steal A brainrot : By Han")
+if game.PlaceId ~= 116495829188952 then
+    game.Players.LocalPlayer:Kick("Only Dead Rails")
     return
 end
 
