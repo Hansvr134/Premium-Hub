@@ -6,7 +6,7 @@ end
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "HLemon Hub V 1.0.3 | STEAL A BRAINROT",
+   Name = "HLemon Hub | Dead Rails",
    Icon = 106329810727373,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
