@@ -159,6 +159,38 @@ local Toggle = Tab:CreateToggle({
 local Tab = Window:CreateTab("🗺️Teleport", nil)
 local Section = Tab:CreateSection("Main Teleport")
 
+local Button = Tab:CreateButton({
+   Name = "Teleport ke Kursi Train",
+   Callback = function()
+      local player = game.Players.LocalPlayer
+      local char = player.Character or player.CharacterAdded:Wait()
+      local hrp = char:WaitForChild("HumanoidRootPart")
+
+      -- Path lengkap ke kursi
+      local seat = workspace:FindFirstChild("default")
+      if seat then
+          seat = seat:FindFirstChild("RequiredComponents")
+          if seat then
+              seat = seat:FindFirstChild("Controls")
+              if seat then
+                  seat = seat:FindFirstChild("ConductorSeat")
+                  if seat then
+                      seat = seat:FindFirstChild("VehicleSeat")
+                  end
+              end
+          end
+      end
+
+      if seat and seat:IsA("BasePart") then
+          -- Teleport ke atas kursi
+          hrp.CFrame = seat.CFrame + Vector3.new(0, 3, 0)
+          print("✅ Teleport ke kursi train berhasil!")
+      else
+          warn("⚠️ Kursi train tidak ditemukan.")
+      end
+   end,
+})
+
 STab:CreateButton({
    Name = "Discord Invite",
    Callback = function()
