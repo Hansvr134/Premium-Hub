@@ -6,7 +6,7 @@ end
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "HLemon Hub V 1.0.3 | STEAL A BRAINROT",
+   Name = "HLemon Hub V1.0.4 | STEAL A BRAINROT",
    Icon = 133520378097790,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
@@ -62,6 +62,69 @@ local Button = Tab:CreateButton({
 
 local Tab = Window:CreateTab("Main", 133520378097790)
 local Section = Tab:CreateSection("Player Setting")
+
+local RunService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+
+local boostSpeedActive = false
+local boostSpeedConnection = nil
+local speed = 50
+
+local function toggleBoostSpeed(Value)
+    boostSpeedActive = Value
+
+    -- Matikan koneksi lama
+    if boostSpeedConnection then
+        boostSpeedConnection:Disconnect()
+        boostSpeedConnection = nil
+    end
+
+    if boostSpeedActive then
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
+        end
+        if not hrp then return end
+
+        boostSpeedConnection = RunService.Heartbeat:Connect(function()
+            if not boostSpeedActive then
+                if boostSpeedConnection then boostSpeedConnection:Disconnect() end
+                return
+            end
+
+            if not hrp or not hrp.Parent then
+                if boostSpeedConnection then boostSpeedConnection:Disconnect() end
+                return
+            end
+
+            local camera = workspace.CurrentCamera
+            local lookVector = camera.CFrame.LookVector
+            lookVector = Vector3.new(lookVector.X, 0, lookVector.Z).Unit
+
+            hrp.Velocity = lookVector * speed
+
+            local pos = hrp.Position
+            hrp.Position = Vector3.new(pos.X, pos.Y, pos.Z)
+        end)
+    else
+        local character = player.Character
+        if character then
+            local hrp = character:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                hrp.Velocity = Vector3.new(0, 0, 0)
+            end
+        end
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Boost Speed",
+    CurrentValue = false,
+    Flag = "BoostSpeed",
+    Callback = toggleBoostSpeed
+})
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
