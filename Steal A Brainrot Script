@@ -7,7 +7,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "HLemon Hub V 1.0.3 | STEAL A BRAINROT",
-   Icon = 0,
+   Icon = 133520378097790,
    LoadingTitle = "Loding....",
    LoadingSubtitle = "Script by Hanzo",
    Theme = "DarkBlue",
@@ -35,7 +35,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
-local Tab = Window:CreateTab("Discord Invite", 4483362458) -- Title, Image
+local Tab = Window:CreateTab("Discord", 133520378097790) -- Title, Image
 local Section = Tab:CreateSection("Menu")
 
 local Button = Tab:CreateButton({
@@ -60,7 +60,7 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("🏠 Main", nil)
+local Tab = Window:CreateTab("Main", 133520378097790)
 local Section = Tab:CreateSection("Player Setting")
 
 local TweenService = game:GetService("TweenService")
@@ -480,8 +480,8 @@ local Toggle = Tab:CreateToggle({
    end,
 })
 
-local Tab = Window:CreateTab("⚙️ Setting", nil)
-local Section = Tab:CreateSection("gugyfyfyf")
+local Tab = Window:CreateTab("Setting", 95482446740136)
+local Section = Tab:CreateSection("Moded")
 
 local Toggle = Tab:CreateToggle({
     Name = "🚀 Boost FPS",
