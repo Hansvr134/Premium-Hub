@@ -55,51 +55,125 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local Tab = Window:CreateTab("🏠 Main", nil)
-local Section = Tab:CreateSection("Main Hub")
+local Tab = Window:CreateTab("Shop", nil)
+local Section = Tab:CreateSection("Seed")
 
-local fruitFolder = workspace.Farm.Farm.Important.Plants_Physical
-local player = game.Players.LocalPlayer
-local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
-local collectDistance = 10
+local seeds = {
+    "Carrot", "Strawberry", "Blueberry", "Orange Tulip", "Tomato", "Corn", "Daffodil",
+    "Watermelon", "Pumpkin", "Apple", "Bamboo", "Coconut", "Cactus",
+    "Dragon Fruit", "Mango", "Grape", "Mushroom", "Pepper", "Cacao", "Beanstalk",
+    "Ember Lily", "Sugar Apple", "Burning Bud"
+}
 
-local function getPosition(object)
-    if object:IsA("BasePart") then
-        return object.Position
-    elseif object:IsA("Model") then
-        if object.PrimaryPart then
-            return object.PrimaryPart.Position
+local AutoBuyEnabled = false
+local selectedSeed = seeds[1]
+
+-- Tambahkan ke Tab & Section milikmu:
+Tab:CreateDropdown({
+    Name = "Select Seed",
+    Options = seeds,
+    CurrentOption = selectedSeed,
+    Flag = "SelectedSeed",
+    Callback = function(Value)
+        if typeof(Value) == "table" then
+            selectedSeed = Value[1] or seeds[1]
         else
-            local part = object:FindFirstChildWhichIsA("BasePart")
-            if part then
-                return part.Position
+            selectedSeed = Value
+        end
+    end
+})
+
+Tab:CreateToggle({
+    Name = "Auto Buy Selected Seed",
+    CurrentValue = false,
+    Flag = "AutoBuyEnabled",
+    Callback = function(Value)
+        AutoBuyEnabled = Value
+    end
+})
+
+task.spawn(function()
+    while task.wait(0.3) do
+        if AutoBuyEnabled and selectedSeed then
+            game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(selectedSeed)
+        end
+    end
+end)
+
+
+task.spawn(function()
+    while task.wait(0.3) do
+        if AutoBuyEnabled and selectedSeed then
+            game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("BuySeedStock"):FireServer(selectedSeed)
+        end
+    end
+end)
+
+local Section = Tab:CreateSection("Egg")
+
+local eggs = {
+    "Common Egg",
+    "Common Summer Egg",
+    "Rare Summer Egg",
+    "Mythical Egg",
+    "Paradise Egg",
+    "Bee Egg",
+    "Bug Egg"
+}
+
+local AutoBuyEggEnabled = false
+local selectedEgg = eggs[1]
+
+-- 📌 Ganti dengan Tab dan Section milikmu!
+Tab:CreateDropdown({
+    Name = "Select Egg",
+    Options = eggs,
+    CurrentOption = selectedEgg,
+    Flag = "SelectedEgg",
+    Callback = function(Value)
+        if typeof(Value) == "table" then
+            selectedEgg = Value[1] or eggs[1]
+        else
+            selectedEgg = Value
+        end
+    end
+})
+
+Tab:CreateToggle({
+    Name = "Auto Buy Selected Egg",
+    CurrentValue = false,
+    Flag = "AutoBuyEggEnabled",
+    Callback = function(Value)
+        AutoBuyEggEnabled = Value
+    end
+})
+
+local function findEggPrompt(name)
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("ProximityPrompt") and obj.Parent:IsA("BasePart") then
+            local gui = obj.Parent:FindFirstChildWhichIsA("BillboardGui", true)
+            if gui then
+                for _, label in ipairs(gui:GetDescendants()) do
+                    if label:IsA("TextLabel") and string.find(label.Text, name) then
+                        return obj
+                    end
+                end
             end
         end
     end
     return nil
 end
 
-local function autoCollect()
-    for _, fruit in pairs(fruitFolder:GetChildren()) do
-        local fruitPosition = getPosition(fruit)
-        if fruitPosition then
-            local distance = (humanoidRootPart.Position - fruitPosition).Magnitude
-            if distance <= collectDistance then
-                print("Collecting:", fruit.Name)
-                fruit:Destroy()
+task.spawn(function()
+    while task.wait(0.5) do
+        if AutoBuyEggEnabled and selectedEgg then
+            local prompt = findEggPrompt(selectedEgg)
+            if prompt then
+                fireproximityprompt(prompt)
             end
-        else
-            warn(fruit.Name .. " tidak punya posisi!")
         end
     end
-end
-
-while task.wait(1) do
-    autoCollect()
-end
-
-local Tab = Window:CreateTab("🗺️Teleport", nil)
-local Section = Tab:CreateSection("Main Teleport")
+end)
 
 STab:CreateButton({
    Name = "Discord Invite",
